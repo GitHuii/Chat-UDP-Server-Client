@@ -10,6 +10,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 /**
  *
@@ -17,19 +18,35 @@ import java.time.format.DateTimeFormatter;
  */
 public class Server extends javax.swing.JFrame {
 
-    private int port_client = 5678;
     private int port_server = 1234;
-    private DatagramSocket socket = new DatagramSocket(port_server);
-    private InetAddress IP = InetAddress.getByName("127.0.0.1");
     
+    private ArrayList<InetAddress> list_IP = new ArrayList<>();
+    private ArrayList<Integer> list_Port = new ArrayList<>();
+    
+    private DatagramSocket socket = new DatagramSocket(port_server);
+    
+    public void Init_Client()
+    {
+        try
+        {
+            list_IP.add(InetAddress.getByName("127.0.0.1"));   
+            list_Port.add(5678);
+        }
+        catch (Exception e)
+        {
+            
+        }
+    }
     public Server() throws Exception
     {
         initComponents();
+        Init_Client();
         setTitle("Server");
         jTextArea1.setEditable(false);
         jTextPane1.requestFocusInWindow();
         jTextArea1.setFont(new Font("Arial", Font.BOLD, 16));
         jTextPane1.setFont(new Font("Arial", Font.BOLD, 16));
+        
         new Thread(this::receiveData).start();
     }
 
@@ -42,17 +59,14 @@ public class Server extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
-        jButton1 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
+        jCheckBox1 = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
 
         jButton1.setText("SEND");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -61,7 +75,18 @@ public class Server extends javax.swing.JFrame {
             }
         });
 
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
         jScrollPane2.setViewportView(jTextPane1);
+
+        jCheckBox1.setText("Client SEND");
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -74,18 +99,23 @@ public class Server extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jCheckBox1))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
-                    .addComponent(jScrollPane2))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCheckBox1))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -100,12 +130,22 @@ public class Server extends javax.swing.JFrame {
         jTextArea1.append("[ Server ] - " + currentTime +"\n");
         jTextArea1.append(jTextPane1.getText() + "\n" + "\n");
         
-        sendData(jTextPane1.getText());
+        for(int i = 0 ; i < list_IP.size() ; i++)
+        {
+            sendData(jTextPane1.getText() , list_IP.get(i) , list_Port.get(i));
+        }
         
         jTextPane1.setText("");
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void sendData(String str)
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        for(int i = 0 ; i < list_IP.size() ; i++)
+        {
+            sendData(jCheckBox1.isSelected() ? "SeNd_BuTtOn_ClIeNt_StAtUs_On" : "SeNd_BuTtOn_ClIeNt_StAtUs_OfF" , list_IP.get(i) , list_Port.get(i));
+        }
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void sendData(String str , InetAddress IP , int port_client)
     {
         try
         {
@@ -132,8 +172,8 @@ public class Server extends javax.swing.JFrame {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
                 String currentTime = LocalDateTime.now().format(formatter);
                 
-                jTextArea1.append("[ Client ] - " + currentTime +"\n");
-                jTextArea1.append(message + "\n" + "\n");
+                jTextArea1.append("[ "+message.split("\\|")[0]+" ] - " + currentTime +"\n");
+                jTextArea1.append(message.split("\\|")[1] + "\n" + "\n");
                 
             }
         }
@@ -181,6 +221,7 @@ public class Server extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;

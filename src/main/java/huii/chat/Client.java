@@ -27,6 +27,8 @@ public class Client extends javax.swing.JFrame {
         initComponents();
         setTitle("Client");
         jTextArea1.setEditable(false);
+        jButton1.setEnabled(false);
+        jTextPane1.setEnabled(false);
         jTextPane1.requestFocusInWindow();
         jTextArea1.setFont(new Font("Arial", Font.BOLD, 16));
         jTextPane1.setFont(new Font("Arial", Font.BOLD, 16));
@@ -93,15 +95,21 @@ public class Client extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        String currentTime = LocalDateTime.now().format(formatter);
-        
-        jTextArea1.append("[ Client ] - " + currentTime +"\n");
-        jTextArea1.append(jTextPane1.getText() + "\n" + "\n");
-        
-        sendData(jTextPane1.getText());
-        
-        jTextPane1.setText("");
+        try
+        {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            String currentTime = LocalDateTime.now().format(formatter);
+
+            jTextArea1.append("[ " + System.getenv("COMPUTERNAME") +" ] - " + currentTime +"\n");
+            jTextArea1.append(jTextPane1.getText() + "\n" + "\n");
+
+            sendData(System.getenv("COMPUTERNAME")+"|"+jTextPane1.getText());
+
+            jTextPane1.setText("");
+        }
+        catch (Exception e)
+        {
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void sendData(String str)
@@ -127,7 +135,18 @@ public class Client extends javax.swing.JFrame {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
                 String message = new String(packet.getData(), 0, packet.getLength());
-                
+                if(message.equals("SeNd_BuTtOn_ClIeNt_StAtUs_On"))
+                {
+                    jButton1.setEnabled(true);
+                    jTextPane1.setEnabled(true);
+                    continue;
+                }
+                if(message.equals("SeNd_BuTtOn_ClIeNt_StAtUs_OfF"))
+                {
+                    jButton1.setEnabled(false);
+                    jTextPane1.setEnabled(false);
+                    continue;
+                }
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
                 String currentTime = LocalDateTime.now().format(formatter);
                 
