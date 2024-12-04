@@ -17,8 +17,9 @@ import java.time.format.DateTimeFormatter;
  */
 public class Client extends javax.swing.JFrame {
 
-    private int port_client = 5678;
-    private int port_server = 1234;
+    private int port_client = 1234;
+    
+    private int port_server = 9999;
     private DatagramSocket socket = new DatagramSocket(port_client);
     private InetAddress IP = InetAddress.getByName("127.0.0.1");
     

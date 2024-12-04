@@ -18,23 +18,26 @@ import java.util.ArrayList;
  */
 public class Server extends javax.swing.JFrame {
 
-    private int port_server = 1234;
-    
+    private int port_server = 9999;
     private ArrayList<InetAddress> list_IP = new ArrayList<>();
     private ArrayList<Integer> list_Port = new ArrayList<>();
     
     private DatagramSocket socket = new DatagramSocket(port_server);
     
-    public void Init_Client()
+    public final void Init_Client()
+    {
+        Add_Client("127.0.0.1",1234);
+    }
+    
+    void Add_Client(String IP , int PORT)
     {
         try
         {
-            list_IP.add(InetAddress.getByName("127.0.0.1"));   
-            list_Port.add(5678);
+            list_IP.add(InetAddress.getByName(IP));   
+            list_Port.add(PORT);
         }
         catch (Exception e)
         {
-            
         }
     }
     public Server() throws Exception
